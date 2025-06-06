@@ -71,14 +71,24 @@ void ins_aft()
     }
     printf("Enter the data of the node after which the new node is to be inserted: \n");
     scanf("%d", &pos);
-    printf("Enter the data of the new node");
+    printf("Enter the data of the new node: ");
     scanf("%d", &new_node->data);
     preptr = head;
+    if (preptr == NULL) {
+        printf("List is empty.\n");
+        free(new_node);
+        return;
+    }
     ptr = preptr->next;
-    while (preptr->data != pos)
+    while (preptr != NULL && preptr->data != pos)
     {
-        ptr = ptr->next;
+        ptr = preptr->next;
         preptr = preptr->next;
+    }
+    if (preptr == NULL) {
+        printf("Node with data %d not found.\n", pos);
+        free(new_node);
+        return;
     }
     new_node->next = ptr;
     preptr->next = new_node;
@@ -95,8 +105,8 @@ void ins_bef() {
          printf("Memory allocation failed!\n");
         exit(1);
     }
-    printf("Enter the data of the node before which the new node is to be inserted: \n")
-    scanf("%d", &pos);
+    printf("Enter the data of the node before which the new node is to be inserted: \n");
+    scanf("%d", &pos); // <-- fixed missing semicolon
 
     printf("Enter the data of the new node: ");
     scanf("%d", &new_node->data);
@@ -136,36 +146,6 @@ void ins_bef() {
     printll();
 }
 
-
-void ins_end()
-{
-    struct node *new_node = (struct node *)malloc(sizeof(struct node));
-    if (new_node == NULL) {
-        printf("Memory allocation failed!\n");
-        exit(1);
-    }
-    struct node *ptr;
-    printf("Enter the data of the new node: \n");
-    scanf("%d", &new_node->data);
-    new_node->next = NULL;
-
-    if (head == NULL)
-    {
-        head = new_node;
-    }
-    else
-    {
-        ptr = head;
-        while (ptr->next != NULL)
-        {
-            ptr = ptr->next;
-        }
-        ptr->next = new_node;
-    }
-
-    printll(head);
-}
-
 void del_beg()
 {
     if (head == NULL)
@@ -178,7 +158,7 @@ void del_beg()
     head = ptr->next;
     free(ptr);
 
-    printll(head);
+    printll();
 }
 
 void del_mid()
@@ -187,21 +167,35 @@ void del_mid()
         printf("List is empty.\n");
     }
     else{
-    struct node *ptr, *preptr;
-    int data;
-    printf("Enter the data of the node to be deleted \n");
-    scanf("%d", &data);
-    preptr = head;
-    ptr = preptr->next;
-    while (preptr->next->data != data)
-    {
-        ptr = ptr->next;
-        preptr = preptr->next;
-    }
-    preptr->next = ptr->next;
-    free(ptr);
+        struct node *ptr, *preptr;
+        int data;
+        printf("Enter the data of the node to be deleted \n");
+        scanf("%d", &data);
 
-    printll();
+        // Special case: delete head
+        if (head->data == data) {
+            ptr = head;
+            head = head->next;
+            free(ptr);
+            printll();
+            return;
+        }
+
+        preptr = head;
+        ptr = preptr->next;
+        while (ptr != NULL && ptr->data != data)
+        {
+            preptr = ptr;
+            ptr = ptr->next;
+        }
+        if (ptr == NULL) {
+            printf("Node with data %d not found.\n", data);
+            return;
+        }
+        preptr->next = ptr->next;
+        free(ptr);
+
+        printll();
     }
 }
 
@@ -210,19 +204,25 @@ void del_end()
     if(head==NULL){
         printf("The list is empty");
     }
-    else{
-    struct node *ptr, *preptr;
-    preptr = head;
-    ptr = preptr->next;
-    while (ptr->next != NULL)
-    {
-        ptr = ptr->next;
-        preptr = preptr->next;
+    else if (head->next == NULL) {
+        // Only one node
+        free(head);
+        head = NULL;
+        printll();
     }
-    preptr->next = NULL;
-    free(ptr);
+    else{
+        struct node *ptr, *preptr;
+        preptr = head;
+        ptr = preptr->next;
+        while (ptr->next != NULL)
+        {
+            preptr = ptr;
+            ptr = ptr->next;
+        }
+        preptr->next = NULL;
+        free(ptr);
 
-    printll();
+        printll();
     }
 }
 
@@ -241,6 +241,16 @@ void printll()
         printf("%d\n ", ptr->data);
         ptr = ptr->next;
     } }
+}
+
+void clearll() {
+    struct node *ptr = head;
+    while (ptr != NULL) {
+        struct node *temp = ptr;
+        ptr = ptr->next;
+        free(temp);
+    }
+    head = NULL;
 }
 
 int sll()
@@ -286,9 +296,10 @@ int sll()
             del_end();
             break;
         case 8:
-            printll(head);
+            printll();
             break;
         case 9:
+            clearll(); // free memory before exit
             exit(0);
             break;
         default:
@@ -297,4 +308,12 @@ int sll()
     }
     return 0;
 }
+
+def greet(name):
+    """Return a greeting message."""
+    return f"Hello, {name}!"
+
+if __name__ == "__main__":
+    name = input("Enter your name: ")
+    print(greet(name))
 
