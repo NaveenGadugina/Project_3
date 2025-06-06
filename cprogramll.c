@@ -1,300 +1,484 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-int main(){
-    printf("Welcome to the Linked List Operations Program!\n");
-    printf("Select the type of linked list you want to work with:\n");
-    printf("1. Singly Linked List\n");
-    printf("2. Doubly Linked List\n");
-    printf("3. Circular Singly Linked List\n");
-    printf("Select an option\n");
+// ----------- Singly Linked List Code -----------
 
-    int opt;
-    scanf("%d", &opt);
-    switch(opt){
-        case 1:
-            // Call the function for singly linked list
-            printf("You selected Singly Linked List.\n");
-           sll();
-            break;
-        case 2:
-            // Call the function for doubly linked list
-            printf("You selected Doubly Linked List.\n");
-            dll();
-            break;
-        case 3:
-            // Call the function for circular singly linked list
-            printf("You selected Circular Singly Linked List.\n");
-            scll();
-            break;
-	default:
-            printf("Invalid option. Please select a valid option.\n");
-    }
-}
-
-//sll.c
 struct node {
     int data;
     struct node *next;
 };
 
-struct node *head = NULL; // Initialize head to NULL
+struct node *head = NULL;
 
 void printll();
+void ins_beg();
+void ins_end();
+void ins_aft();
+void ins_bef();
+void del_beg();
+void del_mid();
+void del_end();
+void clearll();
+
+int sll() {
+    int opt;
+    while (1) {
+        printf("\n--------- Operations on Singly Linked List ---------\n");
+        printf("1. Insertion in the beginning\n");
+        printf("2. Insertion at the end\n");
+        printf("3. Insertion after a specified node\n");
+        printf("4. Insertion before a specified node\n");
+        printf("5. Deletion in the beginning\n");
+        printf("6. Deletion of a specific node\n");
+        printf("7. Deletion at the end\n");
+        printf("8. Print the linked list\n");
+        printf("9. Exit to main menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &opt);
+
+        switch (opt) {
+            case 1: ins_beg(); break;
+            case 2: ins_end(); break;
+            case 3: ins_aft(); break;
+            case 4: ins_bef(); break;
+            case 5: del_beg(); break;
+            case 6: del_mid(); break;
+            case 7: del_end(); break;
+            case 8: printll(); break;
+            case 9: clearll(); return 0;
+            default: printf("Invalid option\n");
+        }
+    }
+}
+
+void printll() {
+    struct node *ptr = head;
+    if (head == NULL) {
+        printf("The list is empty\n");
+        return;
+    }
+
+    printf("The list is:\n");
+    while (ptr != NULL) {
+        printf("%d -> ", ptr->data);
+        ptr = ptr->next;
+    }
+    printf("NULL\n");
+}
 
 void ins_beg() {
-    struct node *new_node = (struct node *)malloc(sizeof(struct node));
-    if (new_node == NULL) {
-        printf("Memory allocation failed!\n");
-        exit(1);
-    }
-    
-    printf("Enter the data of the new node: \n");
-
+    struct node *new_node = malloc(sizeof(struct node));
+    printf("Enter data: ");
     scanf("%d", &new_node->data);
-
     new_node->next = head;
     head = new_node;
-
     printll();
 }
 
-void ins_aft()
-{
-    struct node *ptr, *preptr;
-    int pos;
-    struct node *new_node = (struct node *)malloc(sizeof(struct node));
-    if (new_node == NULL) {
-        printf("Memory allocation failed!\n");
-        exit(1);
-    }
-    printf("Enter the data of the node after which the new node is to be inserted: \n");
-    scanf("%d", &pos);
-    printf("Enter the data of the new node");
+void ins_end() {
+    struct node *new_node = malloc(sizeof(struct node));
+    printf("Enter data: ");
     scanf("%d", &new_node->data);
-    preptr = head;
-    ptr = preptr->next;
-    while (preptr->data != pos)
-    {
-        ptr = ptr->next;
-        preptr = preptr->next;
-    }
-    new_node->next = ptr;
-    preptr->next = new_node;
+    new_node->next = NULL;
 
+    if (head == NULL) {
+        head = new_node;
+    } else {
+        struct node *ptr = head;
+        while (ptr->next != NULL) ptr = ptr->next;
+        ptr->next = new_node;
+    }
+    printll();
+}
+
+void ins_aft() {
+    int pos;
+    printf("Enter the data of the node after which to insert: ");
+    scanf("%d", &pos);
+
+    struct node *ptr = head;
+    while (ptr != NULL && ptr->data != pos) ptr = ptr->next;
+
+    if (ptr == NULL) {
+        printf("Node not found.\n");
+        return;
+    }
+
+    struct node *new_node = malloc(sizeof(struct node));
+    printf("Enter data: ");
+    scanf("%d", &new_node->data);
+    new_node->next = ptr->next;
+    ptr->next = new_node;
     printll();
 }
 
 void ins_bef() {
-    struct node *ptr, *preptr;
     int pos;
-
-    struct node *new_node = (struct node *)malloc(sizeof(struct node));
-    if (new_node == NULL) {
-         printf("Memory allocation failed!\n");
-        exit(1);
-    }
-    printf("Enter the data of the node before which the new node is to be inserted: \n")
+    printf("Enter the data of the node before which to insert: ");
     scanf("%d", &pos);
 
-    printf("Enter the data of the new node: ");
+    struct node *new_node = malloc(sizeof(struct node));
+    printf("Enter data: ");
     scanf("%d", &new_node->data);
 
-    // Handle if list is empty
-    if (head == NULL) {
-        printf("List is empty. Cannot insert before.\n");
-        free(new_node);
-        return;
-    }
-
-    // Special case: insert before the first node
-    if (head->data == pos) {
+    if (head == NULL || head->data == pos) {
         new_node->next = head;
         head = new_node;
         printll();
         return;
     }
 
-    preptr = head;
-    ptr = head->next;
-
+    struct node *ptr = head, *prev = NULL;
     while (ptr != NULL && ptr->data != pos) {
-        preptr = ptr;
+        prev = ptr;
         ptr = ptr->next;
     }
 
     if (ptr == NULL) {
-        printf("Node with data %d not found.\n", pos);
-        free(new_node);
+        printf("Node not found.\n");
         return;
     }
 
     new_node->next = ptr;
-    preptr->next = new_node;
-
+    prev->next = new_node;
     printll();
 }
 
-
-void ins_end()
-{
-    struct node *new_node = (struct node *)malloc(sizeof(struct node));
-    if (new_node == NULL) {
-        printf("Memory allocation failed!\n");
-        exit(1);
+void del_beg() {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return;
     }
-    struct node *ptr;
-    printf("Enter the data of the new node: \n");
-    scanf("%d", &new_node->data);
-    new_node->next = NULL;
-
-    if (head == NULL)
-    {
-        head = new_node;
-    }
-    else
-    {
-        ptr = head;
-        while (ptr->next != NULL)
-        {
-            ptr = ptr->next;
-        }
-        ptr->next = new_node;
-    }
-
-    printll(head);
+    struct node *ptr = head;
+    head = ptr->next;
+    free(ptr);
+    printf("Node deleted from the beginning successfully.\n");
+    printll();
 }
 
-void del_beg()
-{
-    if (head == NULL)
-    {
+void del_mid() {
+    if (head == NULL) {
         printf("List is empty.\n");
         return;
     }
-    struct node *ptr;
-    ptr = head;
-    head = ptr->next;
-    free(ptr);
 
-    printll(head);
-}
-
-void del_mid()
-{
-    if(head == NULL){
-        printf("List is empty.\n");
-    }
-    else{
-    struct node *ptr, *preptr;
     int data;
-    printf("Enter the data of the node to be deleted \n");
+    printf("Enter the data of the node to be deleted: ");
     scanf("%d", &data);
-    preptr = head;
-    ptr = preptr->next;
-    while (preptr->next->data != data)
-    {
-        ptr = ptr->next;
-        preptr = preptr->next;
+
+    // If head node itself holds the data to be deleted
+    if (head->data == data) {
+        struct node *ptr = head;
+        head = head->next;
+        free(ptr);
+        printf("Node with data %d deleted successfully.\n", data);
+        printll();
+        return;
     }
+
+    // Search for the node to be deleted
+    struct node *preptr = head;
+    struct node *ptr = head->next;
+
+    while (ptr != NULL && ptr->data != data) {
+        preptr = ptr;
+        ptr = ptr->next;
+    }
+
+    // If the node was not found
+    if (ptr == NULL) {
+        printf("Node with data %d not found in the list.\n", data);
+        return;
+    }
+
+    // If the node was found, unlink it and free the memory
     preptr->next = ptr->next;
     free(ptr);
-
+    printf("Node with data %d deleted successfully.\n", data);
     printll();
-    }
 }
 
-void del_end()
-{
-    if(head==NULL){
-        printf("The list is empty");
+void del_end() {
+    if (head == NULL) {
+        printf("The list is empty.\n");
+        return;
     }
-    else{
-    struct node *ptr, *preptr;
-    preptr = head;
-    ptr = preptr->next;
-    while (ptr->next != NULL)
-    {
+    // If there is only one node
+    if (head->next == NULL) {
+        free(head);
+        head = NULL;
+        printf("Node deleted from the end successfully.\n");
+        printll();
+        return;
+    }
+
+    struct node *preptr = head;
+    struct node *ptr = head->next;
+    while (ptr->next != NULL) {
+        preptr = ptr;
         ptr = ptr->next;
-        preptr = preptr->next;
     }
     preptr->next = NULL;
     free(ptr);
-
+    printf("Node deleted from the end successfully.\n");
     printll();
-    }
 }
 
-void printll()
-{
+void clearll() {
     struct node *ptr = head;
-    if(head == NULL){
-        printf("The list is empty");
-    }
-
-    else{
-        printf("The list is:\n");
-    while (ptr != NULL)
-    {
-
-        printf("%d\n ", ptr->data);
+    while (ptr != NULL) {
+        struct node *temp = ptr;
         ptr = ptr->next;
-    } }
+        free(temp);
+    }
+    head = NULL;
 }
 
-int sll()
-{
+// ----------- Circular Singly Linked List Code -----------
+
+struct node2 {
+    int data;
+    struct node2 *next;
+};
+
+struct node2 *start2 = NULL;
+
+void printll2();
+void ins_beg2();
+void ins_end2();
+void ins_aft2();
+void ins_bef2();
+void del_beg2();
+void del_mid2();
+void del_end2();
+
+int scll() {
     int opt;
-    while (1)
-    {
-        printf("---------Operations on Linked list---------\n");
+    while (1) {
+        printf("\n--------- Operations on Circular Singly Linked List ---------\n");
         printf("1. Insertion in the beginning\n");
         printf("2. Insertion at the end\n");
-        printf("3. Insertion after the specified node\n");
-        printf("4. Insertion before the specified node\n");
+        printf("3. Insertion after a specified node\n");
+        printf("4. Insertion before a specified node\n");
         printf("5. Deletion in the beginning\n");
-        printf("6. Deletion of specific node\n");
-        printf("7. Deletion at the End\n");
+        printf("6. Deletion of a specific node\n");
+        printf("7. Deletion at the end\n");
         printf("8. Print the linked list\n");
-        printf("9. Exit\n");
-
-        printf("Select the operation to be performed\n");
+        printf("9. Exit to main menu\n");
+        printf("Enter your choice: ");
         scanf("%d", &opt);
 
-        switch (opt)
-        {
-        case 1:
-            ins_beg();
-            break;
-        case 2:
-            ins_end();
-            break;
-        case 3:
-            ins_aft();
-            break;
-        case 4:
-            ins_bef();
-            break;
-        case 5:
-            del_beg();
-            break;
-        case 6:
-            del_mid();
-            break;
-        case 7:
-            del_end();
-            break;
-        case 8:
-            printll(head);
-            break;
-        case 9:
-            exit(0);
-            break;
-        default:
-            printf("Invalid option\n");
+        switch (opt) {
+            case 1: ins_beg2(); break;
+            case 2: ins_end2(); break;
+            case 3: ins_aft2(); break;
+            case 4: ins_bef2(); break;
+            case 5: del_beg2(); break;
+            case 6: del_mid2(); break;
+            case 7: del_end2(); break;
+            case 8: printll2(); break;
+            case 9: return 0;
+            default: printf("Invalid option\n");
         }
     }
-    return 0;
 }
 
+void printll2() {
+    if (start2 == NULL) {
+        printf("The list is empty\n");
+        return;
+    }
+    struct node2 *ptr = start2;
+    printf("The list is: ");
+    do {
+        printf("%d -> ", ptr->data);
+        ptr = ptr->next;
+    } while (ptr != start2);
+    printf("(back to start)\n");
+}
+
+void ins_beg2() {
+    struct node2 *new_node = malloc(sizeof(struct node2));
+    printf("Enter data: ");
+    scanf("%d", &new_node->data);
+    if (start2 == NULL) {
+        start2 = new_node;
+        new_node->next = start2;
+    } else {
+        struct node2 *temp = start2;
+        while (temp->next != start2)
+            temp = temp->next;
+        new_node->next = start2;
+        start2 = new_node;
+        temp->next = start2;
+    }
+    printll2();
+}
+
+void ins_end2() {
+    struct node2 *new_node = malloc(sizeof(struct node2));
+    printf("Enter data: ");
+    scanf("%d", &new_node->data);
+    if (start2 == NULL) {
+        start2 = new_node;
+        new_node->next = start2;
+    } else {
+        struct node2 *ptr = start2;
+        while (ptr->next != start2)
+            ptr = ptr->next;
+        ptr->next = new_node;
+        new_node->next = start2;
+    }
+    printll2();
+}
+
+void ins_aft2() {
+    int pos;
+    printf("Enter data of the node after which to insert: ");
+    scanf("%d", &pos);
+    struct node2 *ptr = start2;
+    if (ptr == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    do {
+        if (ptr->data == pos) {
+            struct node2 *new_node = malloc(sizeof(struct node2));
+            printf("Enter data: ");
+            scanf("%d", &new_node->data);
+            new_node->next = ptr->next;
+            ptr->next = new_node;
+            printll2();
+            return;
+        }
+        ptr = ptr->next;
+    } while (ptr != start2);
+    printf("Node not found\n");
+}
+
+void ins_bef2() {
+    int pos;
+    printf("Enter data of the node before which to insert: ");
+    scanf("%d", &pos);
+
+    if (start2 == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+
+    if (start2->data == pos) {
+        ins_beg2();
+        return;
+    }
+
+    struct node2 *ptr = start2, *prev = NULL;
+    do {
+        prev = ptr;
+        ptr = ptr->next;
+    } while (ptr != start2 && ptr->data != pos);
+
+    if (ptr->data == pos) {
+        struct node2 *new_node = malloc(sizeof(struct node2));
+        printf("Enter data: ");
+        scanf("%d", &new_node->data);
+        new_node->next = ptr;
+        prev->next = new_node;
+        printll2();
+    } else {
+        printf("Node not found\n");
+    }
+}
+
+void del_beg2() {
+    if (start2 == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+    struct node2 *ptr = start2;
+    if (start2->next == start2) {
+        free(start2);
+        start2 = NULL;
+    } else {
+        while (ptr->next != start2) ptr = ptr->next;
+        struct node2 *temp = start2;
+        start2 = start2->next;
+        ptr->next = start2;
+        free(temp);
+    }
+    printll2();
+}
+
+void del_mid2() {
+    int val;
+    printf("Enter value to delete: ");
+    scanf("%d", &val);
+    if (start2 == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+    if (start2->data == val) {
+        del_beg2();
+        return;
+    }
+
+    struct node2 *ptr = start2, *prev = NULL;
+    do {
+        prev = ptr;
+        ptr = ptr->next;
+    } while (ptr != start2 && ptr->data != val);
+
+    if (ptr->data == val) {
+        prev->next = ptr->next;
+        free(ptr);
+        printll2();
+    } else {
+        printf("Node not found\n");
+    }
+}
+
+void del_end2() {
+    if (start2 == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+
+    if (start2->next == start2) {
+        free(start2);
+        start2 = NULL;
+        return;
+    }
+
+    struct node2 *ptr = start2, *prev = NULL;
+    while (ptr->next != start2) {
+        prev = ptr;
+        ptr = ptr->next;
+    }
+    prev->next = start2;
+    free(ptr);
+    printll2();
+}
+
+// ----------- Main Function -----------
+
+int main() {
+    int opt;
+    printf("Welcome to the Linked List Operations Program!\n");
+
+    while (1) {
+        printf("\nSelect the type of linked list you want to work with:\n");
+        printf("1. Singly Linked List\n");
+        printf("2. Circular Singly Linked List\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &opt);
+
+        switch (opt) {
+            case 1: sll(); break;
+            case 2: scll(); break;
+            case 3: exit(0);
+            default: printf("Invalid option.\n");
+        }
+    }
+
+    return 0;
+}
