@@ -149,61 +149,78 @@ void del_beg() {
         printf("List is empty\n");
         return;
     }
-    struct node *temp = head;
-    head = head->next;
-    free(temp);
+    struct node *ptr = head;
+    head = ptr->next;
+    free(ptr);
+    printf("Node deleted from the beginning successfully.\n");
     printll();
 }
 
 void del_mid() {
     if (head == NULL) {
-        printf("List is empty\n");
+        printf("List is empty.\n");
         return;
     }
 
-    int val;
-    printf("Enter value to delete: ");
-    scanf("%d", &val);
+    int data;
+    printf("Enter the data of the node to be deleted: ");
+    scanf("%d", &data);
 
-    if (head->data == val) {
-        del_beg();
+    // If head node itself holds the data to be deleted
+    if (head->data == data) {
+        struct node *ptr = head;
+        head = head->next;
+        free(ptr);
+        printf("Node with data %d deleted successfully.\n", data);
+        printll();
         return;
     }
 
-    struct node *ptr = head, *prev = NULL;
-    while (ptr != NULL && ptr->data != val) {
-        prev = ptr;
+    // Search for the node to be deleted
+    struct node *preptr = head;
+    struct node *ptr = head->next;
+
+    while (ptr != NULL && ptr->data != data) {
+        preptr = ptr;
         ptr = ptr->next;
     }
 
+    // If the node was not found
     if (ptr == NULL) {
-        printf("Node not found\n");
+        printf("Node with data %d not found in the list.\n", data);
         return;
     }
 
-    prev->next = ptr->next;
+    // If the node was found, unlink it and free the memory
+    preptr->next = ptr->next;
     free(ptr);
+    printf("Node with data %d deleted successfully.\n", data);
     printll();
 }
 
 void del_end() {
     if (head == NULL) {
-        printf("List is empty\n");
+        printf("The list is empty.\n");
         return;
     }
-
+    // If there is only one node
     if (head->next == NULL) {
         free(head);
         head = NULL;
-    } else {
-        struct node *ptr = head, *prev = NULL;
-        while (ptr->next != NULL) {
-            prev = ptr;
-            ptr = ptr->next;
-        }
-        prev->next = NULL;
-        free(ptr);
+        printf("Node deleted from the end successfully.\n");
+        printll();
+        return;
     }
+
+    struct node *preptr = head;
+    struct node *ptr = head->next;
+    while (ptr->next != NULL) {
+        preptr = ptr;
+        ptr = ptr->next;
+    }
+    preptr->next = NULL;
+    free(ptr);
+    printf("Node deleted from the end successfully.\n");
     printll();
 }
 
