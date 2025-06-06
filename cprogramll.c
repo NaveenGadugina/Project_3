@@ -163,7 +163,7 @@ void ins_end()
         ptr->next = new_node;
     }
 
-    printll(head);
+    printll();
 }
 
 void del_beg()
@@ -178,7 +178,7 @@ void del_beg()
     head = ptr->next;
     free(ptr);
 
-    printll(head);
+    printll();
 }
 
 void del_mid()
@@ -286,7 +286,7 @@ int sll()
             del_end();
             break;
         case 8:
-            printll(head);
+            printll();
             break;
         case 9:
             exit(0);
@@ -298,3 +298,10 @@ int sll()
     return 0;
 }
 
+def greet(name):
+    """Return a greeting message."""
+    return f"Hello, {name}!"
+
+if _name_ == "_main_":
+    name = input("Enter your name: ")
+    print(greet(name))
